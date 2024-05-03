@@ -1,9 +1,11 @@
+from copy import deepcopy
+
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FixedLocator
 
-from Pawn import Pawn
-from constants import *
+from game.Pawn import Pawn
+from game.constants import *
 
 
 class Board:
@@ -25,6 +27,13 @@ class Board:
             return False
 
         return True
+
+    def move(self, pawn, x, y):
+        self.board[x, y], self.board[pawn.x, pawn.y] = self.board[pawn.x, pawn.y], self.board[x, y]
+        pawn.x, pawn.y = x, y
+
+    def get_pawn(self, x, y):
+        return self.board[x, y]
 
     def get_pawns(self, color):
         return [pawn for row in self.board for pawn in row if pawn != 0 and pawn.color == color]
@@ -60,6 +69,20 @@ class Board:
 
         return moves
 
+    def get_player_moves(self, color):
+        moves = []
+
+        for pawn in self.get_pawns(color):
+            for x, y in self.get_moves(pawn):
+                new_board = deepcopy(self)
+                temp_pawn = new_board.get_pawn(pawn.x, pawn.y)
+
+                new_board.move(temp_pawn, x, y)
+
+                moves.append(new_board)
+
+        return moves
+
     def get_jumps(self, pawn, x, y, visited):
         jumps = []
 
@@ -82,6 +105,19 @@ class Board:
 
         return jumps
 
+    def winner(self):
+        white_pawns = self.get_pawns(WHITE)
+        black_pawns = self.get_pawns(BLACK)
+
+        white_wins = all(pawn.position() in BLACK_START_POSITIONS.tolist() for pawn in white_pawns)
+        black_wins = all(pawn.position() in WHITE_START_POSITIONS.tolist() for pawn in black_pawns)
+
+        if white_wins:
+            return WHITE
+        if black_wins:
+            return BLACK
+        return None
+
     def draw(self):
         fig, ax = plt.subplots()
 
@@ -90,6 +126,10 @@ class Board:
         ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
         ax.set_aspect(1)
         ax.set_facecolor(BACKGROUND)
+
+        for x, y in BLACK_START_POSITIONS:
+            ax.scatter(x, y, s=10, facecolors="black")
+            ax.scatter(15-x, 15-y, s=10, facecolors="darkgrey")
 
         for y in range(16):
             for x in range(16):

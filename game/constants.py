@@ -10,6 +10,9 @@ BLACK_START_POSITIONS = np.array([
 
 WHITE_START_POSITIONS = np.array([[15 - x, 15 - y] for x, y in BLACK_START_POSITIONS])
 
+BLACK_BASE = (15, 15)
+WHITE_BASE = (0, 0)
+
 BLACK = "BLACK"
 WHITE = "WHITE"
 
