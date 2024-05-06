@@ -1,4 +1,5 @@
 from copy import deepcopy
+import random
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -80,10 +81,10 @@ class Board:
                 new_board.move(temp_pawn, x, y)
 
                 moves.append(new_board)
-
+        random.shuffle(moves)
         return moves
 
-    def get_jumps(self, pawn, x, y, visited):
+    def get_jumps(self, pawn, start_x, start_y, visited):
         jumps = []
 
         for dx in [-1, 0, 1]:
@@ -91,17 +92,19 @@ class Board:
                 if dx == 0 and dy == 0:
                     continue
 
-                x = x + dx
-                y = y + dy
+                x = start_x + dx
+                y = start_y + dy
 
                 if self.is_valid_move(x, y) and self.board[x, y] != 0:
-                    x, y = x + dx, y + dy
+                    x_next = x + dx
+                    y_next = y + dy
 
-                    if self.is_valid_move(x, y) and self.board[x, y] == 0 and (x, y) not in visited:
-                        jumps.append((x, y))
-                        visited.append((x, y))
+                    if self.is_valid_move(x_next, y_next) and self.board[x_next, y_next] == 0 and (
+                            x_next, y_next) not in visited:
+                        jumps.append((x_next, y_next))
+                        visited.append((x_next, y_next))
 
-                        jumps.extend(self.get_jumps(pawn, x, y, visited))
+                        jumps.extend(self.get_jumps(pawn, x_next, y_next, visited))
 
         return jumps
 
@@ -129,7 +132,7 @@ class Board:
 
         for x, y in BLACK_START_POSITIONS:
             ax.scatter(x, y, s=10, facecolors="black")
-            ax.scatter(15-x, 15-y, s=10, facecolors="darkgrey")
+            ax.scatter(15 - x, 15 - y, s=10, facecolors="darkgrey")
 
         for y in range(16):
             for x in range(16):
