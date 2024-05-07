@@ -49,7 +49,6 @@ class Minimax:
             return best_evaluation, best
 
     def basic_minimax(self, board, player):
-        self.visited_nodes = 0
         return self.__basic_minimax(board, self.max_depth, player == WHITE)
 
     def __basic_minimax(self, board, depth, is_max):
