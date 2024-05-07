@@ -1,3 +1,5 @@
+import os
+import uuid
 from copy import deepcopy
 import random
 
@@ -121,7 +123,7 @@ class Board:
             return BLACK
         return None
 
-    def draw(self):
+    def draw(self, save_path=None, img_num=0):
         fig, ax = plt.subplots()
 
         ax.set_xticks(np.arange(-0.5, 16, 1), minor=True)
@@ -149,4 +151,10 @@ class Board:
         ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 16)))
         ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: int(y + 1)))
 
-        plt.show()
+        if save_path:
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            plt.savefig(os.path.join(save_path, f'{img_num}.png'))
+            plt.close()
+        else:
+            plt.show()

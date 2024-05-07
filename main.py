@@ -1,32 +1,37 @@
 import time
 
+from gif_utils import generate_gif
 from minimax.Minimax import Minimax
 from minimax.evaluators import *
+
+SAVE_PATH = r"C:\Users\PC\PycharmProjects\halma\gifs"
 
 
 def run_ai_vs_ai():
     board = Board()
 
-    mm1 = Minimax(m_distance_evaluator, 3)
-    mm2 = Minimax(m_distance_evaluator, 1)
+    mm1 = Minimax(mixed_evaluator, 1)
+    mm2 = Minimax(base_penalty_evaluator, 1)
 
     rounds = 0
     t_sum = 0
-    while not board.winner() and not rounds >= 5:
+    board.draw(SAVE_PATH, rounds)
+    while not board.winner() and not rounds >= 250:
         t = time.time()
-        e1, board = mm1.basic_minimax(board, WHITE)
+        e1, board = mm1.minimax(board, WHITE)
         t_sum += time.time() - t
-        #e2, board = mm2.minimax(board, BLACK)
+        e2, board = mm2.minimax(board, BLACK)
 
         rounds += 1
         print(rounds)
         print(t_sum / rounds)
         print(mm1.visited_nodes / rounds)
-        if rounds % 10 == 0:
-            board.draw()
+        if rounds % 1 == 0:
+            board.draw(SAVE_PATH, rounds)
     board.draw()
-    print(t_sum/rounds)
-    print(mm1.visited_nodes/rounds)
+    generate_gif(SAVE_PATH, SAVE_PATH)
+    print(t_sum / rounds)
+    print(mm1.visited_nodes / rounds)
 
 
 def run_ai_vs_human():
@@ -63,7 +68,6 @@ def run_ai_vs_human():
                 print("Invalid input. Please enter integers for coordinates.")
         e2, board = mm1.minimax(board, WHITE)
 
-
         rounds += 1
         print(rounds)
 
@@ -71,3 +75,4 @@ def run_ai_vs_human():
 
 
 run_ai_vs_ai()
+
