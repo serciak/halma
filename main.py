@@ -10,7 +10,7 @@ SAVE_PATH = r"C:\Users\PC\PycharmProjects\halma\gifs"
 def run_ai_vs_ai():
     board = Board()
 
-    mm1 = Minimax(mixed_evaluator, 1)
+    mm1 = Minimax(adaptive_evaluator, 1)
     mm2 = Minimax(base_penalty_evaluator, 1)
 
     rounds = 0
@@ -27,7 +27,7 @@ def run_ai_vs_ai():
         print(t_sum / rounds)
         print(mm1.visited_nodes / rounds)
         if rounds % 1 == 0:
-            board.draw(SAVE_PATH, rounds)
+            board.draw()
     board.draw()
     generate_gif(SAVE_PATH, SAVE_PATH)
     print(t_sum / rounds)

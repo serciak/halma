@@ -75,6 +75,25 @@ def mixed_evaluator(board: Board):
     return 1.5 * weight_distance_evaluator(board) + middle_bonus(board) + group_bonus(board) + 2 * opponent_base_bonus(board) - 2 * base_penalty(board)
 
 
+def adaptive_evaluator(board: Board):
+    pawns = board.get_pawns(WHITE)
+    score = weight_distance_evaluator(board)
+
+    base_pawns = sum(1 if pawn.position() in WHITE_START_POSITIONS.tolist() else 0 for pawn in pawns)
+    if base_pawns > 0:
+        score += base_penalty(board)
+
+    middle_weights = generate_middle_bonus_weights(16)
+    off_middle_pawns = sum(1 if middle_weights[pawn.x, pawn.y] < 10 else 0 for pawn in pawns)
+    if off_middle_pawns > 8:
+        score += middle_bonus(board)
+
+    opponent_base_pawns = sum(1 if pawn.position() in BLACK_START_POSITIONS.tolist() else 0 for pawn in pawns)
+    if opponent_base_pawns > 0:
+        score += opponent_base_bonus(board)
+
+    return score
+
 def group_bonus(board: Board):
     white_groups = count_connected_groups(board, WHITE)
     black_groups = count_connected_groups(board, BLACK)
@@ -93,19 +112,20 @@ def base_penalty(board: Board):
     return white_penalty - black_penalty
 
 
+@lru_cache
+def generate_middle_bonus_weights(size):
+    weights = np.zeros((size, size), dtype=int)
+
+    for y in range(size):
+        for x in range(size):
+            distance_to_diagonal = abs(x - y)
+            bonus_weight = size - distance_to_diagonal
+            weights[y, x] = 16 if bonus_weight > 13 else bonus_weight
+
+    return weights
+
+
 def middle_bonus(board: Board):
-    @lru_cache
-    def generate_middle_bonus_weights(size):
-        weights = np.zeros((size, size), dtype=int)
-
-        for y in range(size):
-            for x in range(size):
-                distance_to_diagonal = abs(x - y)
-                bonus_weight = size - distance_to_diagonal
-                weights[y, x] = 16 if bonus_weight > 13 else bonus_weight
-
-        return weights
-
     weights = generate_middle_bonus_weights(16)
     white_pawns = board.get_pawns(WHITE)
     black_pawns = board.get_pawns(BLACK)
